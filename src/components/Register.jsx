@@ -1,12 +1,46 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 
 export default function Register() {
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
+    const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
-    function handleRegister(e) {
+    const navigate = useNavigate();
+    async function handleRegister(e) {
         e.preventDefault();
+
+        if (!name || !username || !password) {
+            alert("Please fill all the fields");
+            return;
+        }
+
+        const res = await fetch('https://dummyjson.com/users')
+        const data = res.json();
+        console.log(data);
+
+        if (data.users.find((user) => user.username === username))
+        {
+            alert("User already exists");
+            return;
+        };
+
+        const registerRes = await fetch('https://dummyjson.com/users/add',{
+            method : 'POST',
+            headers : { 'Content-Type' : 'application/json' },
+            body : JSON.stringify({
+                name,
+                username,
+                password,
+            })
+        })
+
+        const registerData = await registerRes.json();
+        console.log(registerData);
+
+        if(registerData.id){
+            alert("User registered successfully");
+            navigate("/login");
+        }
     }
     return (
         <div className="page-wrapper">
@@ -19,8 +53,8 @@ export default function Register() {
                         <input id="name" type="text" className="input-field" placeholder="Your Name" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <input id="email" type="email" className="input-field" placeholder="Your Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <label htmlFor="username">Username</label>
+                        <input id="username" type="text" className="input-field" placeholder="Your Username" value={username} onChange={(e) => setUserName(e.target.value)} />
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password</label>
